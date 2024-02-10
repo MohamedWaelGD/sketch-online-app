@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Firestore } from '@angular/fire/firestore';
-import { ref, getStorage, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, getStorage, uploadBytes, getBlob } from 'firebase/storage';
 import { from } from 'rxjs';
 
 @Injectable({
@@ -20,10 +20,10 @@ export class SketchFirebaseService {
     });
   }
 
-  getImage(roomUuid: string) {
+  getImageBlob(roomUuid: string) {
     const storage = getStorage();
     const canvasImagesRef = ref(storage, `canvas-images/${roomUuid}`);
-    return from(getDownloadURL(canvasImagesRef));
+    return from(getBlob(canvasImagesRef));
   }
 }
 

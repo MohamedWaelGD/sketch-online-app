@@ -211,17 +211,13 @@ export class SketchService {
     return blob;
   }
 
-  drawImage(ctx: CanvasRenderingContext2D, imgUrl: string) {
-    this._http.get(imgUrl).subscribe((blob: any) => {
-      if (blob && blob.blob()) {
-        const blobUrl = URL.createObjectURL(blob);
-        var img = new Image();
-        img.src = blobUrl;
-        img.onload = () => {
-          ctx.drawImage(img, 0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
-        };
-      }
-    });
+  drawImage(ctx: CanvasRenderingContext2D, blob: Blob) {
+    const blobUrl = URL.createObjectURL(blob);
+    var img = new Image();
+    img.src = blobUrl;
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
+    };
   }
 
   private dataURLtoBlob(dataURL: string): Blob {

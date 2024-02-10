@@ -105,21 +105,24 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.renderGridCanvas();
     this.setMode(DrawModes.MOVE);
     this.checkUpdatedImage();
-    
-    this._socket.updateData$.pipe(debounceTime(1000)).subscribe(res => {
-      console.log("uploading canvas...");
-      const blob = this._sketchService.convertCanvasToImage(this._mainCtx);
-      this._sketchFirebase.setImage(blob, this._socket.roomUuid);
-    });
+    this.autoSaveCanvas();
   }
 
   ngOnDestroy(): void {
     this._socket.unsubscribe();
   }
 
+  private autoSaveCanvas() {
+    this._socket.updateData$.pipe(debounceTime(500)).subscribe(res => {
+      console.log("uploading canvas...");
+      const blob = this._sketchService.convertCanvasToImage(this._mainCtx);
+      this._sketchFirebase.setImage(blob, this._socket.roomUuid);
+    });
+  }
+
   private checkUpdatedImage() {
     this._socket.connect$.subscribe((res) => {
-      this._sketchFirebase.getImage(this._socket.roomUuid).pipe(take(1)).subscribe({
+      this._sketchFirebase.getImageBlob(this._socket.roomUuid).pipe(take(1)).subscribe({
         next: (res) => {
           if (res) {
             console.log('Updating Image...');
