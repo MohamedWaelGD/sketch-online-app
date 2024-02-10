@@ -1,0 +1,5 @@
+@for (item of sizesList(); track $index) {
+    <button mat-mini-fab [color]="selectedSize() === item ? 'primary' : 'secondary'" (click)="onSelectSize(item)">
+        {{item}}
+    </button>
+}

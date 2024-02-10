@@ -1,0 +1,5 @@
+<div>
+    <app-color-selection [initColor]="initColor()" position="right" (selectColor)="selectColor.emit($event)"></app-color-selection>
+    <app-size-selection [initSize]="initSize()" position="left" (selectSize)="selectSize.emit($event)"></app-size-selection>
+    <app-draw-type-selection [initDrawType]="initDrawType()" position="top" (selectDrawType)="selectDrawType.emit($event)"></app-draw-type-selection>
+</div>

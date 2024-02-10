@@ -1,0 +1,6 @@
+@for (item of drawTypeList(); track $index) {
+<button mat-mini-fab (click)="onSelectDrawType(item.drawType)"
+    [color]="item.drawType === selectedDrawType() ? 'primary' : 'secondary'">
+    <mat-icon>{{item.icon}}</mat-icon>
+</button>
+}

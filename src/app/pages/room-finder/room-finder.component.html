@@ -1,0 +1,10 @@
+<div class="wrapper">
+    <h1 class="text-center fw-bold">Sketch Drawer</h1>
+    <mat-form-field color="accent">
+        <mat-label>Room Finder</mat-label>
+        <input [(ngModel)]="roomUuid" matInput>
+        <mat-hint>Room UUID you want to join</mat-hint>
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="joinRoom()">Find</button>
+    <button mat-raised-button color="primary" (click)="createNewRoom()">New Room</button>
+</div>

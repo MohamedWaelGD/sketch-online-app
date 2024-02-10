@@ -1,0 +1,78 @@
+<section class="sketch-container">
+    <div class="top-left">
+        <button mat-mini-fab color="warn" routerLink="">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+    </div>
+    <div class="top-right">
+        <button mat-mini-fab color="accent" (click)="copyUuid()">
+            <mat-icon>content_copy</mat-icon>
+        </button>
+    </div>
+    <div class="bottom-side-bar">
+        <button mat-flat-button [color]="currentMode() === drawModes.MOVE ? 'primary' : 'secondary'"
+            (click)="setMode(drawModes.MOVE)">
+            <mat-icon>back_hand</mat-icon>
+            Move
+        </button>
+        <button mat-flat-button [color]="currentMode() === drawModes.DRAW ? 'primary' : 'secondary'"
+            (click)="setMode(drawModes.DRAW)">
+            <mat-icon>mode</mat-icon>
+            Draw
+        </button>
+        <button mat-flat-button [color]="currentMode() === drawModes.ERASE ? 'primary' : 'secondary'"
+            (click)="setMode(drawModes.ERASE)">
+            <mat-icon>backspace</mat-icon>
+            Eraser
+        </button>
+        <button mat-flat-button [color]="currentMode() === drawModes.CIRCLE ? 'primary' : 'secondary'"
+            (click)="setMode(drawModes.CIRCLE)">
+            <mat-icon>circle</mat-icon>
+            Circle
+        </button>
+        <button mat-flat-button [color]="currentMode() === drawModes.BOX ? 'primary' : 'secondary'"
+            (click)="setMode(drawModes.BOX)">
+            <mat-icon>rectangle</mat-icon>
+            Box
+        </button>
+        <button mat-flat-button [color]="currentMode() === drawModes.LINE ? 'primary' : 'secondary'"
+            (click)="setMode(drawModes.LINE)">
+            <mat-icon>show_chart</mat-icon>
+            Line
+        </button>
+        <!-- <button mat-flat-button [color]="currentMode() === drawModes.TEXT ? 'primary' : 'secondary'"
+            (click)="setMode(drawModes.TEXT)">
+            <mat-icon>format_size</mat-icon>
+            Text
+        </button> -->
+        <button mat-flat-button color="secondary" (click)="clearCanvas(true)">
+            <mat-icon>clear</mat-icon>
+            Clear
+        </button>
+    </div>
+    @switch (currentMode()) {
+        @case (drawModes.DRAW) {
+        <app-draw-pencil [initColor]="selectedColor()" [initSize]="selectedSize()" (selectColor)="onSelectColor($event)"
+            (selectSize)="onSelectSize($event)"></app-draw-pencil>
+        }
+        @case (drawModes.ERASE) {
+        <app-eraser [initSize]="selectedSize()" (selectSize)="onSelectSize($event)"></app-eraser>
+        }
+        @case (drawModes.CIRCLE) {
+        <app-draw-circle [initColor]="selectedColor()" [initSize]="selectedSize()" [initDrawType]="selectedDrawType()"
+            (selectColor)="onSelectColor($event)" (selectSize)="onSelectSize($event)"
+            (selectDrawType)="onSelectDrawType($event)"></app-draw-circle>
+        }
+        @case (drawModes.BOX) {
+        <app-draw-box [initColor]="selectedColor()" [initSize]="selectedSize()" [initDrawType]="selectedDrawType()"
+            (selectColor)="onSelectColor($event)" (selectSize)="onSelectSize($event)"
+            (selectDrawType)="onSelectDrawType($event)"></app-draw-box>
+        }
+        @case (drawModes.LINE) {
+        <app-draw-line [initColor]="selectedColor()" [initSize]="selectedSize()" (selectColor)="onSelectColor($event)"
+            (selectSize)="onSelectSize($event)"></app-draw-line>
+        }
+    }
+</section>
+<canvas id="grid-canvas"></canvas>
+<canvas id="sketch-canvas"></canvas>

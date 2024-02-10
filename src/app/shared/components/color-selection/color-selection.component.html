@@ -1,0 +1,5 @@
+@for (item of colorsList(); track $index) {
+<button mat-mini-fab [ngClass]="{'active-border': item === selectedColor()}" [style.backgroundColor]="item"
+    (click)="onSelectColor(item)">
+</button>
+}
