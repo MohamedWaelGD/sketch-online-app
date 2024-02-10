@@ -74,5 +74,10 @@
         }
     }
 </section>
+@if (isLoading()) {
+    <div class="loading">
+        <mat-spinner></mat-spinner>
+    </div>
+}
 <canvas id="grid-canvas"></canvas>
 <canvas id="sketch-canvas"></canvas>

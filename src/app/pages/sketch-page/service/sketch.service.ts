@@ -8,8 +8,8 @@ import { HttpClient } from '@angular/common/http';
 export class SketchService {
   readonly DEFAULT_COLOR: string = 'white';
   readonly DEFAULT_STROKE: number = SIZES[0];
-  readonly CANVAS_WIDTH: number = 2000;
-  readonly CANVAS_HEIGHT: number = 2000;
+  readonly CANVAS_WIDTH: number = 10000;
+  readonly CANVAS_HEIGHT: number = 10000;
 
   private _http = inject(HttpClient);
 

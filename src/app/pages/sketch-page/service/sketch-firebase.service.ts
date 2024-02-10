@@ -15,9 +15,7 @@ export class SketchFirebaseService {
   setImage(blob: Blob, roomUuid: string) {
     const storage = getStorage();
     const canvasImagesRef = ref(storage, `canvas-images/${roomUuid}`);
-    uploadBytes(canvasImagesRef, blob).then((snapshot) => {
-      console.log("Updated canvas");
-    });
+    return uploadBytes(canvasImagesRef, blob);
   }
 
   getImageBlob(roomUuid: string) {

@@ -35,6 +35,7 @@ import { v4 } from 'uuid';
 import { SKETCH_COMPONENTS } from './components';
 import { SketchFirebaseService } from './service/sketch-firebase.service';
 import { debounceTime, take } from 'rxjs';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-sketch-page',
@@ -45,6 +46,7 @@ import { debounceTime, take } from 'rxjs';
     MatButtonModule,
     MatIconModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule,
     SKETCH_COMPONENTS
   ],
   templateUrl: './sketch-page.component.html',
@@ -56,6 +58,7 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   colorsList = signal(COLORS);
   fontSize = signal(SIZES);
   currentMode = signal(DrawModes.DRAW);
+  isLoading = signal(false);
 
   private _mainCtx!: CanvasRenderingContext2D;
   private _gridCtx!: CanvasRenderingContext2D;
@@ -101,7 +104,7 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
       document.getElementById('sketch-canvas') as HTMLCanvasElement
     ).getContext('2d')!;
     this._parentCanvas = document.querySelector('.sketch-container')!;
-    this.resizeCanvas();
+    this.setupCanvas();
     this.renderGridCanvas();
     this.setMode(DrawModes.MOVE);
     this.checkUpdatedImage();
@@ -115,21 +118,29 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   private autoSaveCanvas() {
     this._socket.updateData$.pipe(debounceTime(500)).subscribe(res => {
       console.log("uploading canvas...");
-      const blob = this._sketchService.convertCanvasToImage(this._mainCtx);
-      this._sketchFirebase.setImage(blob, this._socket.roomUuid);
+      try {
+        const blob = this._sketchService.convertCanvasToImage(this._mainCtx);
+        this._sketchFirebase.setImage(blob, this._socket.roomUuid).then(() =>{
+          console.log("Updated canvas");
+        });
+      } catch(err) {
+      }
     });
   }
 
   private checkUpdatedImage() {
     this._socket.connect$.subscribe((res) => {
+      this.isLoading.set(true);
       this._sketchFirebase.getImageBlob(this._socket.roomUuid).pipe(take(1)).subscribe({
         next: (res) => {
           if (res) {
+            this.isLoading.set(false);
             console.log('Updating Image...');
             this._sketchService.drawImage(this._mainCtx, res);
           }
         },
         error: (err) => {
+          this.isLoading.set(false);
           console.log('Room Canvas not found');
         },
       });
@@ -184,7 +195,7 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private resizeCanvas() {
+  private setupCanvas() {
     const canvas = document.getElementById(
       'sketch-canvas'
     ) as HTMLCanvasElement;
@@ -195,11 +206,6 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this._mainCtx.canvas.height = this._sketchService.CANVAS_HEIGHT;
     this._mainCtx.canvas.width = this._sketchService.CANVAS_WIDTH;
-  }
-
-  @HostListener('window:resize', ['$event'])
-  onResizeWindow(e: Event) {
-    // this.resizeCanvas();
   }
 
   @HostListener('mousedown', ['$event'])
