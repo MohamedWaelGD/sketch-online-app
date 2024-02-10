@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SIZES } from './sizes';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +11,7 @@ export class SketchService {
   readonly CANVAS_WIDTH: number = 2000;
   readonly CANVAS_HEIGHT: number = 2000;
 
-  constructor() {}
+  private _http = inject(HttpClient);
 
   drawBox(
     ctx: CanvasRenderingContext2D,
@@ -107,6 +108,7 @@ export class SketchService {
     ctx.moveTo(firstPath.x, firstPath.y);
     pathOptions.slice(1).forEach((p) => {
       ctx.lineTo(p.x, p.y);
+      ctx.moveTo(p.x, p.y);
     });
     ctx.stroke();
     ctx.closePath();
@@ -146,6 +148,7 @@ export class SketchService {
     ctx.moveTo(option.x, option.y);
     pathOptions.slice(1).forEach((e) => {
       ctx.lineTo(e.x, e.y);
+      ctx.moveTo(e.x, e.y);
     });
     ctx.stroke();
     ctx.closePath();
@@ -199,6 +202,40 @@ export class SketchService {
       ctx.lineTo(ctx.canvas.width, y);
       ctx.stroke();
     }
+  }
+
+  convertCanvasToImage(ctx: CanvasRenderingContext2D): Blob {
+    const canvas: HTMLCanvasElement = ctx.canvas;
+    const dataUrl: string = canvas.toDataURL();
+    const blob: Blob = this.dataURLtoBlob(dataUrl);
+    return blob;
+  }
+
+  drawImage(ctx: CanvasRenderingContext2D, imgUrl: string) {
+    this._http.get(imgUrl).subscribe((blob: any) => {
+      if (blob && blob.blob()) {
+        const blobUrl = URL.createObjectURL(blob);
+        var img = new Image();
+        img.src = blobUrl;
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
+        };
+      }
+    });
+  }
+
+  private dataURLtoBlob(dataURL: string): Blob {
+    const arr: string[] = dataURL.split(',');
+    const mime: string = arr[0].match(/:(.*?);/)![1];
+    const bstr: string = atob(arr[1]);
+    let n: number = bstr.length;
+    const u8arr: Uint8Array = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new Blob([u8arr], { type: mime });
   }
 }
 

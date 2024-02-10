@@ -8,12 +8,22 @@ import { SocketSketch } from '../../../core/models/socket/socket-sketch';
   providedIn: 'root',
 })
 export class SocketSketchService {
-  private _socket!: Socket;
+  private _connection!: Socket;
   private _drawData$ = new Subject<SocketSketch>();
+  private _updateData$ = new Subject<SocketSketch>();
+  private _connect$ = new Subject();
   private _roomUuid!: string;
 
   get drawData$() {
     return this._drawData$.asObservable();
+  }
+
+  get updateData$() {
+    return this._updateData$.asObservable();
+  }
+
+  get connect$() {
+    return this._connect$.asObservable();
   }
 
   get roomUuid() {
@@ -21,26 +31,35 @@ export class SocketSketchService {
   }
 
   initSocket(roomUuid: string) {
-    this._socket = io(environment.SOCKET_URL, { transports: ['websocket'] });
+    this._connection = io(environment.SOCKET_URL, { transports: ['websocket'] });
 
     this._roomUuid = roomUuid;
-    this._socket.emit('joinRoom', roomUuid);
-    this._socket.on('draw', (socketSketch: SocketSketch) => {
-      console.log(socketSketch);
+    this._connection.on('draw', (socketSketch: SocketSketch) => {
       this._drawData$.next(socketSketch);
+    });
+
+    this._connection.on('connect', () => {
+      this._connection.emit('joinRoom', roomUuid);
+      this._connect$.next(null);
+      console.log('You connected');
+    });
+
+    this._connection.on('disconnect', (e) => {
+      console.log('You disconnected');
     });
   }
 
   sendDrawData(data: SocketSketch) {
-    if (!this._socket || !this._roomUuid || !data) return;
+    if (!this._connection || !this._roomUuid || !data) return;
 
     data.roomUuid = this._roomUuid;
-    data.senderId = this._socket.id;
-    this._socket.emit('draw', data);
+    data.senderId = this._connection.id;
+    this._updateData$.next(data);
+    this._connection.emit('draw', data);
   }
 
   unsubscribe() {
-    if (!this._socket) return;
-    this._socket.disconnect();
+    if (!this._connection) return;
+    this._connection.disconnect();
   }
 }

@@ -33,11 +33,20 @@ import { MoveCanvas } from '../../core/classes/move-canvas';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { v4 } from 'uuid';
 import { SKETCH_COMPONENTS } from './components';
+import { SketchFirebaseService } from './service/sketch-firebase.service';
+import { debounceTime, take } from 'rxjs';
 
 @Component({
   selector: 'app-sketch-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, MatSnackBarModule, SKETCH_COMPONENTS],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSnackBarModule,
+    SKETCH_COMPONENTS
+  ],
   templateUrl: './sketch-page.component.html',
   styleUrl: './sketch-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,6 +64,7 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   private _activatedRouter = inject(ActivatedRoute);
   private _router = inject(Router);
   private _snackBar = inject(MatSnackBar);
+  private _sketchFirebase = inject(SketchFirebaseService);
   private _selectedColor = signal(this.colorsList()[0]);
   private _selectedSize = signal(this.fontSize()[0]);
   private _selectedDrawType = signal(DrawType.OUTLINE);
@@ -66,9 +76,7 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
     | DrawBox
     | DrawCircle
     | MoveCanvas
-    | null = new MoveCanvas(
-    this._sketchService,
-  );
+    | null = new MoveCanvas(this._sketchService);
   private _parentCanvas!: HTMLElement;
   private _drawSocket = signal<SocketSketch | null>(null);
 
@@ -77,8 +85,8 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedDrawType = computed(() => this._selectedDrawType());
 
   ngOnInit(): void {
-    this._activatedRouter.params.subscribe(res => {
-      let id = res['id'];;
+    this._activatedRouter.params.subscribe((res) => {
+      let id = res['id'];
       if (!id) {
         this._router.navigate([`${v4()}`]);
       } else {
@@ -96,10 +104,33 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.resizeCanvas();
     this.renderGridCanvas();
     this.setMode(DrawModes.MOVE);
+    this.checkUpdatedImage();
+    
+    this._socket.updateData$.pipe(debounceTime(1000)).subscribe(res => {
+      console.log("uploading canvas...");
+      const blob = this._sketchService.convertCanvasToImage(this._mainCtx);
+      this._sketchFirebase.setImage(blob, this._socket.roomUuid);
+    });
   }
 
   ngOnDestroy(): void {
     this._socket.unsubscribe();
+  }
+
+  private checkUpdatedImage() {
+    this._socket.connect$.subscribe((res) => {
+      this._sketchFirebase.getImage(this._socket.roomUuid).pipe(take(1)).subscribe({
+        next: (res) => {
+          if (res) {
+            console.log('Updating Image...');
+            this._sketchService.drawImage(this._mainCtx, res);
+          }
+        },
+        error: (err) => {
+          console.log('Room Canvas not found');
+        },
+      });
+    });
   }
 
   private onSocketData() {
@@ -134,9 +165,7 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private renderGridCanvas() {
-    const canvas = document.getElementById(
-      'grid-canvas'
-    ) as HTMLCanvasElement;
+    const canvas = document.getElementById('grid-canvas') as HTMLCanvasElement;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
@@ -196,16 +225,15 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentMode.set(drawMode);
     switch (drawMode) {
       case DrawModes.MOVE:
-        this._sketch = new MoveCanvas(
-          this._sketchService
-        );
-        this._sketch.onMove$.subscribe(res => {
+        this._sketch = new MoveCanvas(this._sketchService);
+        this._sketch.onMove$.subscribe((res) => {
           this._gridCtx.canvas.style.left = `${res.left}px`;
           this._gridCtx.canvas.style.top = `${res.top}px`;
         });
         return;
       case DrawModes.DRAW:
         this._sketch = new DrawPencil(
+          this._parentCanvas,
           this._selectedColor(),
           this._selectedSize(),
           this._sketchService,
@@ -214,6 +242,7 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       case DrawModes.ERASE:
         this._sketch = new Eraser(
+          this._parentCanvas,
           this._selectedSize(),
           this._sketchService,
           this._socket
@@ -289,7 +318,7 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   public copyUuid() {
     navigator.clipboard.writeText(this._socket.roomUuid);
     this._snackBar.open('Uuid is copy to clipboard', 'Close', {
-      duration: 1500
+      duration: 1500,
     });
   }
 }
