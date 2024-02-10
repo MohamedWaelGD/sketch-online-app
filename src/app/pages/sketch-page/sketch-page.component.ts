@@ -116,7 +116,7 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private autoSaveCanvas() {
-    this._socket.updateData$.pipe(debounceTime(500)).subscribe(res => {
+    this._socket.updateData$.pipe(debounceTime(2000)).subscribe(res => {
       console.log("uploading canvas...");
       try {
         const blob = this._sketchService.convertCanvasToImage(this._mainCtx);
