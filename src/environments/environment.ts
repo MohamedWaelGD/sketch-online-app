@@ -1,3 +1,3 @@
 export const environment = {
-    SOCKET_URL: 'http://localhost:3000'
+    SOCKET_URL: 'https://sketch-drawer-socket-io.adaptable.app'
 };
