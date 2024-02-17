@@ -86,6 +86,7 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedColor = computed(() => this._selectedColor());
   selectedSize = computed(() => this._selectedSize());
   selectedDrawType = computed(() => this._selectedDrawType());
+  private lastTouchPoint!: MouseEvent;
 
   ngOnInit(): void {
     this._activatedRouter.params.subscribe((res) => {
@@ -210,6 +211,18 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @HostListener('mousedown', ['$event'])
   private onMouseDown(e: MouseEvent) {
+    this.mouseDown(e);
+  }
+
+  @HostListener('touchstart', ['$event'])
+  private onTouchDown(e: TouchEvent) {
+    this.updateLastTouchPoint(e);
+    if (e.touches.length > 0) {
+      this.mouseDown(e.touches[0] as unknown as MouseEvent);
+    }
+  }
+
+  private mouseDown(e: MouseEvent) {
     if (!this._sketch || e.target !== this._mainCtx.canvas) return;
 
     this._sketch.onMouseDown(this._mainCtx, e);
@@ -217,6 +230,19 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @HostListener('mousemove', ['$event'])
   private onMouseMove(e: MouseEvent) {
+    this.mouseMove(e);
+  }
+
+  @HostListener('touchmove', ['$event'])
+  private onTouchMove(e: TouchEvent) {
+    e.preventDefault();
+    this.updateLastTouchPoint(e);
+    if (e.touches.length > 0) {
+      this.mouseMove(e.touches[0] as unknown as MouseEvent);
+    }
+  }
+
+  private mouseMove(e: MouseEvent) {
     if (!this._sketch || !this._sketch.isHold()) return;
 
     this._sketch.onMouseMove(this._mainCtx, e);
@@ -224,7 +250,23 @@ export class SketchPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @HostListener('mouseup', ['$event'])
   private onMouseUp(e: MouseEvent) {
+    this.mouseUp(e);
+  }
+
+  @HostListener('touchend', ['$event'])
+  private onTouchUp(e: TouchEvent) {
+    if (!this.lastTouchPoint) return;
+    this.mouseUp(this.lastTouchPoint);
+  }
+
+  private mouseUp(e: MouseEvent) {
     this._sketch?.onMouseUp(this._mainCtx, e);
+  }
+
+  private updateLastTouchPoint(e: TouchEvent) {
+    if (e.touches.length > 0) {
+      this.lastTouchPoint = e.touches[0] as unknown as MouseEvent;
+    }
   }
 
   public setMode(drawMode: DrawModes) {

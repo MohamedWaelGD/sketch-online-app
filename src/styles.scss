@@ -1,129 +1,135 @@
 /* You can add global styles to this file, and also import other style files */
 
-*{
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
 }
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; overflow: hidden; }
+body {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  overflow: hidden;
+}
 
 canvas {
-    display: block;
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    // background: linear-gradient(125deg, rgba(71,187,225,1) 0%, rgba(133,157,150,1) 49%, rgba(250,74,74,1) 100%);
+  display: block;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  // background: linear-gradient(125deg, rgba(71,187,225,1) 0%, rgba(133,157,150,1) 49%, rgba(250,74,74,1) 100%);
 }
 
 .grab-cursor {
-    cursor: grabbing;
+  cursor: grabbing;
 }
 
 .grabbing-cursor {
-    cursor: grab;
+  cursor: grab;
 }
 
 .remove-event {
-    pointer-events: none;
+  pointer-events: none;
 }
 
 .top-left {
-    position: absolute;
-    top: 50px;
-    left: 50px;
-    transform: translate(-50%, -50%);
-    z-index: 2;
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  transform: translate(-50%, -50%);
+  z-index: 2;
 }
 
 .top-right {
-    position: absolute;
-    top: 50px;
-    right: 50px;
-    transform: translate(-50%, -50%);
-    z-index: 2;
+  position: absolute;
+  top: 50px;
+  right: 0px;
+  transform: translate(-50%, -50%);
+  z-index: 2;
 }
 
 .top-side-bar {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translate(-50%, 50%);
-    z-index: 2;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translate(-50%, 0%);
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .bottom-side-bar {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    z-index: 2;
-    transform: translate(-50%, -50%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  width: 100%;
+  z-index: 2;
+  transform: translate(-50%, 0%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .left-side-bar {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    z-index: 2;
-    transform: translate(50%, -50%);
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  z-index: 2;
+  transform: translate(0%, -50%);
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
 }
 
 .right-side-bar {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    z-index: 2;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  z-index: 2;
+  transform: translate(0%, -50%);
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
 }
 
 .active-border {
-    border: 2px solid white !important;
+  border: 2px solid white !important;
 }
 
 #grid-canvas {
-    pointer-events: none;
+  pointer-events: none;
 }
 
 .text-center {
-    text-align: center;
+  text-align: center;
 }
 
 .fw-bold {
-    font-weight: bold !important;
+  font-weight: bold !important;
 }
 
 .loading {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    z-index: 9999;
-    background-color: rgba(0, 0, 0, 0.8);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.8);
 }
